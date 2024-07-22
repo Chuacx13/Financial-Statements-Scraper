@@ -11,6 +11,8 @@ driver = webdriver.Chrome(service=service)
 
 driver.get("https://discountingcashflows.com/")
 
+roic_table_data = {}
+
 WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.ID, "search_form"))
 )
@@ -36,4 +38,7 @@ income_statement.click()
 
 time.sleep(5)
 
+roic_table = pd.DataFrame(roic_table_data, index=['ROIC', 'Operating Income', 'Tax Expense', 'Earnings Before Taxes', 'Short Term Debt', 'Long Term Debt', 'Debt', 'Equity', 'Tax Rate', 'Net Operating Profit After Taxes'])
+
 driver.quit()
+
