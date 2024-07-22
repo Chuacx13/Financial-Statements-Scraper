@@ -19,12 +19,20 @@ input_ticker = driver.find_element(By.CLASS_NAME, "search-input")
 input_ticker.clear()
 input_ticker.send_keys("AAPL")
 
-WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CLASS_NAME, "clickable-row"))
+first_ticker = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.CSS_SELECTOR, "tr.clickable-row"))
 )
-
-first_ticker = driver.find_element(By.CLASS_NAME, "clickable-row")
 first_ticker.click()
+
+financials = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+)
+financials.click()
+
+income_statement = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item"))
+)
+income_statement.click()
 
 time.sleep(5)
 
