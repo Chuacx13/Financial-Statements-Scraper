@@ -36,9 +36,19 @@ income_statement = WebDriverWait(driver, 10).until(
 )
 income_statement.click()
 
+WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.CSS_SELECTOR, "#report-table tbody tr td a"))
+)
+
+years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
+for year in years:
+    roic_table_data[year.text] = ['', '', '', '', '', '', '', '', '', '']
+
 time.sleep(5)
 
-roic_table = pd.DataFrame(roic_table_data, index=['ROIC', 'Operating Income', 'Tax Expense', 'Earnings Before Taxes', 'Short Term Debt', 'Long Term Debt', 'Debt', 'Equity', 'Tax Rate', 'Net Operating Profit After Taxes'])
+metrics = ['ROIC', 'Operating Income', 'Tax Expense', 'Earnings Before Taxes', 'Short Term Debt', 'Long Term Debt', 'Debt', 'Equity', 'Tax Rate', 'Net Operating Profit After Taxes']
+roic_table = pd.DataFrame(roic_table_data, index=metrics)
 
+print(roic_table)
 driver.quit()
 
