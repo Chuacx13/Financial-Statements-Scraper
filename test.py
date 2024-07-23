@@ -41,14 +41,16 @@ WebDriverWait(driver, 10).until(
 )
 
 years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
-for year in years:
-    roic_table_data[year.text] = ['', '', '', '', '', '', '', '', '', '']
+operating_incomes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(9) td.formatted-value")
+for i in range(len(years)):
+    roic_table_data[years[i].text] = ['', operating_incomes[i].text, '', '', '', '', '', '', '', '']
 
 time.sleep(5)
 
 metrics = ['ROIC', 'Operating Income', 'Tax Expense', 'Earnings Before Taxes', 'Short Term Debt', 'Long Term Debt', 'Debt', 'Equity', 'Tax Rate', 'Net Operating Profit After Taxes']
 roic_table = pd.DataFrame(roic_table_data, index=metrics)
 
-print(roic_table)
+roic_table.to_csv('roic_table.csv')
 driver.quit()
+
 
