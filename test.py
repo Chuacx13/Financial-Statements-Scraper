@@ -72,9 +72,13 @@ time.sleep(2)
 years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
 short_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(19) td.formatted-value")
 long_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(25) td.formatted-value")
+total_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(37) td.formatted-value")
+equities = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(28) td.formatted-value")
 for i in range(len(years)):
     roic_table_data[years[i].text][4] = short_term_debts[i].text
     roic_table_data[years[i].text][5] = long_term_debts[i].text
+    roic_table_data[years[i].text][6] = total_debts[i].text
+    roic_table_data[years[i].text][7] = equities[i].text
 
 
 metrics = ['ROIC', 'Operating Income', 'Tax Expense', 'Earnings Before Taxes', 'Short Term Debt', 'Long Term Debt', 'Debt', 'Equity', 'Tax Rate', 'Net Operating Profit After Taxes']
