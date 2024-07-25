@@ -69,6 +69,12 @@ balance_sheet.click()
 
 time.sleep(2)
 
+years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
+short_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(19) td.formatted-value")
+for i in range(len(years)):
+    roic_table_data[years[i].text][4] = short_term_debts[i].text
+
+
 metrics = ['ROIC', 'Operating Income', 'Tax Expense', 'Earnings Before Taxes', 'Short Term Debt', 'Long Term Debt', 'Debt', 'Equity', 'Tax Rate', 'Net Operating Profit After Taxes']
 roic_table = pd.DataFrame(roic_table_data, index=metrics)
 
