@@ -43,8 +43,9 @@ WebDriverWait(driver, 10).until(
 years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
 operating_incomes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(9) td.formatted-value")
 tax_expenses = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(15) td.formatted-value")
+earnings_before_taxes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(14) td.formatted-value")
 for i in range(len(years)):
-    roic_table_data[years[i].text] = ['', operating_incomes[i].text, tax_expenses[i].text, '', '', '', '', '', '', '']
+    roic_table_data[years[i].text] = ['', operating_incomes[i].text, tax_expenses[i].text, earnings_before_taxes[i].text, '', '', '', '', '', '']
 
 time.sleep(5)
 
