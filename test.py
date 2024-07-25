@@ -26,15 +26,21 @@ first_ticker = WebDriverWait(driver, 10).until(
 )
 first_ticker.click()
 
+time.sleep(2)
+
 financials = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
 )
 financials.click()
 
+time.sleep(2)
+
 income_statement = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item"))
 )
 income_statement.click()
+
+time.sleep(2)
 
 WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.CSS_SELECTOR, "#report-table tbody tr td a"))
@@ -47,7 +53,21 @@ earnings_before_taxes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbo
 for i in range(len(years)):
     roic_table_data[years[i].text] = ['', operating_incomes[i].text, tax_expenses[i].text, earnings_before_taxes[i].text, '', '', '', '', '', '']
 
-time.sleep(5)
+time.sleep(2)
+
+financials = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+)
+financials.click()
+
+time.sleep(2)
+
+balance_sheet = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(2)"))
+)
+balance_sheet.click()
+
+time.sleep(2)
 
 metrics = ['ROIC', 'Operating Income', 'Tax Expense', 'Earnings Before Taxes', 'Short Term Debt', 'Long Term Debt', 'Debt', 'Equity', 'Tax Rate', 'Net Operating Profit After Taxes']
 roic_table = pd.DataFrame(roic_table_data, index=metrics)
