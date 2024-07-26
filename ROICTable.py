@@ -83,6 +83,10 @@ for i in range(len(years)):
 metrics = ['ROIC', 'Operating Income', 'Tax Expense', 'Earnings Before Taxes', 'Short Term Debt', 'Long Term Debt', 'Debt', 'Equity', 'Tax Rate', 'Net Operating Profit After Taxes']
 roic_table = pd.DataFrame(roic_table_data, index=metrics)
 
+roic_table.loc['Tax Rate'] = roic_table.loc['Tax Expense'] / roic_table.loc['Operating Income']
+roic_table.loc['Net Operating Profit After Taxes'] = roic_table.loc['Operating Income'] * (1 - roic_table.loc['Tax Rate'])
+roic_table.loc['ROIC'] = roic_table.loc['Net Operating Profit After Taxes'] / (roic_table.loc['Equity'] + roic_table.loc['Debt']) * 100
+
 roic_table.to_csv('roic_table.csv')
 driver.quit()
 
