@@ -51,7 +51,7 @@ operating_incomes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody t
 tax_expenses = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(15) td.formatted-value")
 earnings_before_taxes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(14) td.formatted-value")
 for i in range(len(years)):
-    roic_table_data[years[i].text] = ['', operating_incomes[i].text, tax_expenses[i].text, earnings_before_taxes[i].text, '', '', '', '', '', '']
+    roic_table_data[years[i].text] = [0, float(operating_incomes[i+1].text.replace(',', '')), float(tax_expenses[i+1].text.replace(',', '')), float(earnings_before_taxes[i+1].text.replace(',', '')), 0, 0, 0, 0, 0, 0]
 
 time.sleep(2)
 
@@ -75,11 +75,10 @@ long_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:
 total_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(37) td.formatted-value")
 equities = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(28) td.formatted-value")
 for i in range(len(years)):
-    roic_table_data[years[i].text][4] = short_term_debts[i].text
-    roic_table_data[years[i].text][5] = long_term_debts[i].text
-    roic_table_data[years[i].text][6] = total_debts[i].text
-    roic_table_data[years[i].text][7] = equities[i].text
-
+    roic_table_data[years[i].text][4] = float(short_term_debts[i].text.replace(',', ''))
+    roic_table_data[years[i].text][5] = float(long_term_debts[i].text.replace(',', ''))
+    roic_table_data[years[i].text][6] = float(total_debts[i].text.replace(',', ''))
+    roic_table_data[years[i].text][7] = float(equities[i].text.replace(',', ''))
 
 metrics = ['ROIC', 'Operating Income', 'Tax Expense', 'Earnings Before Taxes', 'Short Term Debt', 'Long Term Debt', 'Debt', 'Equity', 'Tax Rate', 'Net Operating Profit After Taxes']
 roic_table = pd.DataFrame(roic_table_data, index=metrics)
