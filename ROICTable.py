@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
+import os 
 
 service = Service(executable_path="C:/Users/chuac/chromedriver.exe")
 driver = webdriver.Chrome(service=service)
@@ -17,9 +18,10 @@ WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.ID, "search_form"))
 )
 
+chosen_stock = "AAPL"
 input_ticker = driver.find_element(By.CLASS_NAME, "search-input")
 input_ticker.clear()
-input_ticker.send_keys("AAPL")
+input_ticker.send_keys(chosen_stock)
 
 first_ticker = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.CSS_SELECTOR, "tr.clickable-row"))
@@ -95,8 +97,17 @@ roic_trend_data = {
 
 roic_trend_table = pd.DataFrame(roic_trend_data, index=[0])
 
-roic_table.to_csv('roic.csv')
-roic_trend_table.to_csv('roic_trend.csv', index=False)
+# Create directory if it does not exist
+directory = f"Final_Results/{chosen_stock}/"
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
+# Save DataFrame to CSV file in the created directory
+file_path = os.path.join(directory, f'{chosen_stock}_roic.csv')
+roic_table.to_csv(file_path)
+
+file_path = os.path.join(directory, f'{chosen_stock}_roic_trend.csv')
+roic_trend_table.to_csv(file_path, index=False)
 driver.quit()
 
 
