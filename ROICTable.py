@@ -19,6 +19,7 @@ WebDriverWait(driver, 10).until(
 )
 
 chosen_stock = "AAPL"
+year = '2023'
 input_ticker = driver.find_element(By.CLASS_NAME, "search-input")
 input_ticker.clear()
 input_ticker.send_keys(chosen_stock)
@@ -98,16 +99,17 @@ roic_trend_data = {
 roic_trend_table = pd.DataFrame(roic_trend_data, index=[0])
 
 # Create directory if it does not exist
-directory = f"Final_Results/{chosen_stock}/"
+directory = f"Final_Results/{chosen_stock}/{year}"
 if not os.path.exists(directory):
     os.makedirs(directory)
 
 # Save DataFrame to CSV file in the created directory
-file_path = os.path.join(directory, f'{chosen_stock}_roic.csv')
+file_path = os.path.join(directory, f'{chosen_stock}_roic_{year}.csv')
 roic_table.to_csv(file_path)
 
-file_path = os.path.join(directory, f'{chosen_stock}_roic_trend.csv')
+file_path = os.path.join(directory, f'{chosen_stock}_roic_trend_{year}.csv')
 roic_trend_table.to_csv(file_path, index=False)
+
 driver.quit()
 
 

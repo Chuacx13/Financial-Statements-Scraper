@@ -18,6 +18,7 @@ WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.ID, "search_form"))
 )
 
+year = '2023'
 chosen_stock = "AAPL"
 input_ticker = driver.find_element(By.CLASS_NAME, "search-input")
 input_ticker.clear()
@@ -85,12 +86,12 @@ metrics = ['Equity Growth Rate', 'Current Equity', 'Previous Equity']
 equity_trend_table = pd.DataFrame(equity_trend_data, index=metrics)
 
 # Create directory if it does not exist
-directory = f"Final_Results/{chosen_stock}/"
+directory = f"Final_Results/{chosen_stock}/{year}"
 if not os.path.exists(directory):
     os.makedirs(directory)
 
 # Save DataFrame to CSV file in the created directory
-file_path = os.path.join(directory, f"{chosen_stock}_equity_trend.csv")
+file_path = os.path.join(directory, f"{chosen_stock}_equity_trend_{year}.csv")
 equity_trend_table.to_csv(file_path, index=True)
 
 driver.quit()
