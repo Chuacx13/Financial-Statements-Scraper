@@ -87,7 +87,16 @@ roic_table.loc['Tax Rate'] = roic_table.loc['Tax Expense'] / roic_table.loc['Ope
 roic_table.loc['Net Operating Profit After Taxes'] = roic_table.loc['Operating Income'] * (1 - roic_table.loc['Tax Rate'])
 roic_table.loc['ROIC'] = roic_table.loc['Net Operating Profit After Taxes'] / (roic_table.loc['Equity'] + roic_table.loc['Debt']) * 100
 
+roic_trend_data = {
+    'ROIC 1-Year': roic_table.loc['ROIC'].iloc[0], 
+    'ROIC 5-Year': roic_table.loc['ROIC'].iloc[0:5].sum() / 5, 
+    'ROIC 10-Year': roic_table.loc['ROIC'].iloc[0:10].sum() / 10
+}
+
+roic_trend_table = pd.DataFrame(roic_trend_data, index=[0])
+
 roic_table.to_csv('roic_table.csv')
+roic_trend_table.to_csv('roic_trend_table.csv', index=False)
 driver.quit()
 
 
