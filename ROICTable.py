@@ -95,8 +95,8 @@ roic_trend_data = {
 
 roic_trend_table = pd.DataFrame(roic_trend_data, index=[0])
 
-roic_table.to_csv('roic_table.csv')
-roic_trend_table.to_csv('roic_trend_table.csv', index=False)
+roic_table.to_csv('roic.csv')
+roic_trend_table.to_csv('roic_trend.csv', index=False)
 driver.quit()
 
 
