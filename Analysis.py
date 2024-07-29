@@ -82,4 +82,8 @@ elif n % 2 == 0 and n >= 5:
     median_index_2 = n // 2
     historical_pe_ratio = (pe_ratios_list[median_index_1] + pe_ratios_list[median_index_2]) / 2
 
-metrics = ['Current EPS, EPS Growth Rate (Equity), EPS Growth Rate (Analyst), Default P/E, Historical P/E, P/E used, Future EPS, Future Stock Price, Sticker Price, MOS 50%, MOS 30%']
+columns = ['Default_P/E_Ratio', 'Highest_P/E_Ratio', 'Median_P/E_Ratio', 'Lowest_P/E_Ratio']
+index = ['Future_Stock_Price', 'Sticker_Price_15%', 'MOS_50%(15)', 'MOS_30%(15)',  'Sticker_Price_12%', 'MOS_50%(12)', 'MOS_30%(12)', 'Sticker_Price_10%', 'MOS_50%(10)', 'MOS_30%(10)']
+
+final = pd.DataFrame(columns=columns, index=index)
+print(final)
