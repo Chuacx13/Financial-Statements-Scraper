@@ -38,14 +38,16 @@ eps_trend = pd.read_csv(f'Final_Results/{chosen_stock}/{year}/{chosen_stock}_equ
 eps_growth_rate_10year = eps_trend.iloc[0, 3]/100 + 1
 
 # EPS Growth Rate (Analyst)
-eps_growth_rate_manual_input = 1.2
+eps_growth_rate_analyst_input = 1.2
 
 # Default P/E for both potential EPS Growth Rate
-pe_manual = (eps_growth_rate_manual_input - 1) * 200
+pe_analyst = (eps_growth_rate_analyst_input - 1) * 200
 pe_10year = (eps_growth_rate_10year - 1) * 200
 
-# Historical P/E 
-historical_pe_ratio = 0
+# Max, Min and Median P/E 
+median_pe_ratio = 0
+max_pe_ratio = 0
+min_pe_ratio = 0 
 financials = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
 )
@@ -76,14 +78,18 @@ pe_ratios_list.sort()
 n = len(pe_ratios_list)
 if n % 2 != 0 and n >= 5:
     median_index = n // 2
-    historical_pe_ratio = pe_ratios_list[median_index]
+    median_pe_ratio = pe_ratios_list[median_index]
 elif n % 2 == 0 and n >= 5:
     median_index_1 = n // 2 - 1
     median_index_2 = n // 2
-    historical_pe_ratio = (pe_ratios_list[median_index_1] + pe_ratios_list[median_index_2]) / 2
+    median_pe_ratio = (pe_ratios_list[median_index_1] + pe_ratios_list[median_index_2]) / 2
 
-columns = ['Default_P/E_Ratio', 'Highest_P/E_Ratio', 'Median_P/E_Ratio', 'Lowest_P/E_Ratio']
+max_pe_ratio = max(pe_ratios_list)
+min_pe_ratio = min(pe_ratios_list)
+
+columns_analyst = [f'Default_P/E_Ratio({pe_analyst})', f'Highest_P/E_Ratio({max_pe_ratio})', f'Median_P/E_Ratio({median_pe_ratio})', f'Lowest_P/E_Ratio({min_pe_ratio})']
 index = ['Future_Stock_Price', 'Sticker_Price_15%', 'MOS_50%(15)', 'MOS_30%(15)',  'Sticker_Price_12%', 'MOS_50%(12)', 'MOS_30%(12)', 'Sticker_Price_10%', 'MOS_50%(10)', 'MOS_30%(10)']
 
-final = pd.DataFrame(columns=columns, index=index)
-print(final)
+final_analyst = pd.DataFrame(columns=columns_analyst, index=index)
+
+print(final_analyst)
