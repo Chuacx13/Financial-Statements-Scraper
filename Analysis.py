@@ -126,6 +126,18 @@ mos5015_max_pe_analyst = sp15_max_pe_analyst * 0.5
 mos5015_median_pe_analyst = sp15_median_pe_analyst * 0.5
 mos5015_min_pe_analyst = sp15_min_pe_analyst * 0.5
 
+# MOS (30%) of Sticker Price - 12% Returns 
+mos3012_default_pe_analyst = sp12_default_pe_analyst * 0.7
+mos3012_max_pe_analyst = sp12_max_pe_analyst * 0.7
+mos3012_median_pe_analyst = sp12_median_pe_analyst * 0.7
+mos3012_min_pe_analyst = sp12_min_pe_analyst * 0.7
+
+# MOS (50%) of Sticker Price - 12% Returns 
+mos5012_default_pe_analyst = sp12_default_pe_analyst * 0.5
+mos5012_max_pe_analyst = sp12_max_pe_analyst * 0.5
+mos5012_median_pe_analyst = sp12_median_pe_analyst * 0.5
+mos5012_min_pe_analyst = sp12_min_pe_analyst * 0.5
+
 columns_analyst = [f'Default_P/E_Ratio({pe_analyst})', f'Highest_P/E_Ratio({max_pe_ratio})', f'Median_P/E_Ratio({median_pe_ratio})', f'Lowest_P/E_Ratio({min_pe_ratio})']
 index = ['Future_Stock_Price', 'Sticker_Price_15%', 'MOS_30%(15)', 'MOS_50%(15)',  'Sticker_Price_12%', 'MOS_30%(12)', 'MOS_50%(12)', 'Sticker_Price_10%', 'MOS_30%(10)', 'MOS_50%(10)']
 
@@ -137,6 +149,8 @@ final_analyst.loc['Sticker_Price_12%'] = [sp12_default_pe_analyst, sp12_max_pe_a
 final_analyst.loc['Sticker_Price_10%'] = [sp10_default_pe_analyst, sp10_max_pe_analyst, sp10_median_pe_analyst, sp10_min_pe_analyst]
 final_analyst.loc['MOS_30%(15)'] = [mos3015_default_pe_analyst, mos3015_max_pe_analyst, mos3015_median_pe_analyst, mos3015_min_pe_analyst]
 final_analyst.loc['MOS_50%(15)'] = [mos5015_default_pe_analyst, mos5015_max_pe_analyst, mos5015_median_pe_analyst, mos5015_min_pe_analyst]
+final_analyst.loc['MOS_30%(12)'] = [mos3012_default_pe_analyst, mos3012_max_pe_analyst, mos3012_median_pe_analyst, mos3012_min_pe_analyst]
+final_analyst.loc['MOS_50%(12)'] = [mos5012_default_pe_analyst, mos5012_max_pe_analyst, mos5012_median_pe_analyst, mos5012_min_pe_analyst]
 
 
 # Create directory if it does not exist
