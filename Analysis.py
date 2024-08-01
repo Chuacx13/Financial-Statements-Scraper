@@ -33,7 +33,7 @@ time.sleep(2)
 # Current EPS
 current_eps = float(driver.find_element(By.CSS_SELECTOR, "div.company-container div.col-sm:nth-of-type(2) ul.list-group li:nth-of-type(5) span").text)
 
-# EPS Growth Rate (Equity)
+# EPS Growth Rate (Historical)
 eps_trend = pd.read_csv(f'Final_Results/{chosen_stock}/{year}/{chosen_stock}_equity_trend_{year}.csv')
 eps_growth_rate_10year = eps_trend.iloc[0, 3]/100 + 1
 
@@ -96,55 +96,55 @@ fsp_max_pe_analyst = future_eps_analyst * max_pe_ratio
 fsp_median_pe_analyst = future_eps_analyst * median_pe_ratio
 fsp_min_pe_analyst = future_eps_analyst * min_pe_ratio
 
-# Sticker Price - 15% Returns 
+## Sticker Price - 15% Returns 
 sp15_default_pe_analyst = fsp_default_pe_analyst * ((100/115)**10)
 sp15_max_pe_analyst = fsp_max_pe_analyst * ((100/115)**10)
 sp15_median_pe_analyst = fsp_median_pe_analyst * ((100/115)**10)
 sp15_min_pe_analyst = fsp_min_pe_analyst * ((100/115)**10)
 
-# Sticker Price - 12% Returns 
+## Sticker Price - 12% Returns 
 sp12_default_pe_analyst = fsp_default_pe_analyst * ((100/112)**10)
 sp12_max_pe_analyst = fsp_max_pe_analyst * ((100/112)**10)
 sp12_median_pe_analyst = fsp_median_pe_analyst * ((100/112)**10)
 sp12_min_pe_analyst = fsp_min_pe_analyst * ((100/112)**10)
 
-# Sticker Price - 10% Returns 
+## Sticker Price - 10% Returns 
 sp10_default_pe_analyst = fsp_default_pe_analyst * ((100/110)**10)
 sp10_max_pe_analyst = fsp_max_pe_analyst * ((100/110)**10)
 sp10_median_pe_analyst = fsp_median_pe_analyst * ((100/110)**10)
 sp10_min_pe_analyst = fsp_min_pe_analyst * ((100/110)**10)
 
-# MOS (30%) of Sticker Price - 15% Returns 
+## MOS (30%) of Sticker Price - 15% Returns 
 mos3015_default_pe_analyst = sp15_default_pe_analyst * 0.7
 mos3015_max_pe_analyst = sp15_max_pe_analyst * 0.7
 mos3015_median_pe_analyst = sp15_median_pe_analyst * 0.7
 mos3015_min_pe_analyst = sp15_min_pe_analyst * 0.7
 
-# MOS (50%) of Sticker Price - 15% Returns 
+## MOS (50%) of Sticker Price - 15% Returns 
 mos5015_default_pe_analyst = sp15_default_pe_analyst * 0.5
 mos5015_max_pe_analyst = sp15_max_pe_analyst * 0.5
 mos5015_median_pe_analyst = sp15_median_pe_analyst * 0.5
 mos5015_min_pe_analyst = sp15_min_pe_analyst * 0.5
 
-# MOS (30%) of Sticker Price - 12% Returns 
+## MOS (30%) of Sticker Price - 12% Returns 
 mos3012_default_pe_analyst = sp12_default_pe_analyst * 0.7
 mos3012_max_pe_analyst = sp12_max_pe_analyst * 0.7
 mos3012_median_pe_analyst = sp12_median_pe_analyst * 0.7
 mos3012_min_pe_analyst = sp12_min_pe_analyst * 0.7
 
-# MOS (50%) of Sticker Price - 12% Returns 
+## MOS (50%) of Sticker Price - 12% Returns 
 mos5012_default_pe_analyst = sp12_default_pe_analyst * 0.5
 mos5012_max_pe_analyst = sp12_max_pe_analyst * 0.5
 mos5012_median_pe_analyst = sp12_median_pe_analyst * 0.5
 mos5012_min_pe_analyst = sp12_min_pe_analyst * 0.5
 
-# MOS (30%) of Sticker Price - 10% Returns 
+## MOS (30%) of Sticker Price - 10% Returns 
 mos3010_default_pe_analyst = sp10_default_pe_analyst * 0.7
 mos3010_max_pe_analyst = sp10_max_pe_analyst * 0.7
 mos3010_median_pe_analyst = sp10_median_pe_analyst * 0.7
 mos3010_min_pe_analyst = sp10_min_pe_analyst * 0.7
 
-# MOS (50%) of Sticker Price - 10% Returns 
+## MOS (50%) of Sticker Price - 10% Returns 
 mos5010_default_pe_analyst = sp10_default_pe_analyst * 0.5
 mos5010_max_pe_analyst = sp10_max_pe_analyst * 0.5
 mos5010_median_pe_analyst = sp10_median_pe_analyst * 0.5
@@ -166,12 +166,18 @@ final_analyst.loc['MOS_50%(12)'] = [mos5012_default_pe_analyst, mos5012_max_pe_a
 final_analyst.loc['MOS_30%(10)'] = [mos3010_default_pe_analyst, mos3010_max_pe_analyst, mos3010_median_pe_analyst, mos3010_min_pe_analyst]
 final_analyst.loc['MOS_50%(10)'] = [mos5010_default_pe_analyst, mos5010_max_pe_analyst, mos5010_median_pe_analyst, mos5010_min_pe_analyst]
 
-
 # Create directory if it does not exist
 directory = f"Final_Results/{chosen_stock}/{year}"
 if not os.path.exists(directory):
     os.makedirs(directory)
 
 # Save DataFrame to CSV file in the created directory
-file_path = os.path.join(directory, f"{chosen_stock}_final_analyst_analysis_{year}.csv")
+file_path = os.path.join(directory, f"{chosen_stock}_final_analyst({round(eps_growth_rate_analyst_input, 2)*100}%)_analysis_{year}.csv")
 final_analyst.to_csv(file_path, index=True)
+
+columns_hist = [f'Default_P/E_Ratio({pe_10year})', f'Highest_P/E_Ratio({max_pe_ratio})', f'Median_P/E_Ratio({median_pe_ratio})', f'Lowest_P/E_Ratio({min_pe_ratio})']
+final_hist = pd.DataFrame(columns=columns_hist, index=index)
+
+file_path = os.path.join(directory, f"{chosen_stock}_final_hist({round(eps_growth_rate_10year,2)*100}%)_analysis_{year}.csv")
+final_hist.to_csv(file_path, index=True)
+
