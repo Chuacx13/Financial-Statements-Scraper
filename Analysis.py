@@ -175,8 +175,41 @@ if not os.path.exists(directory):
 file_path = os.path.join(directory, f"{chosen_stock}_final_analyst({round(eps_growth_rate_analyst_input, 2)*100}%)_analysis_{year}.csv")
 final_analyst.to_csv(file_path, index=True)
 
+# Historical Analysis
+future_eps_hist = current_eps * (eps_growth_rate_10year ** 10)
+
+## Future Stock Price
+fsp_default_pe_hist = future_eps_hist * pe_analyst
+fsp_max_pe_hist = future_eps_hist * max_pe_ratio
+fsp_median_pe_hist = future_eps_hist * median_pe_ratio
+fsp_min_pe_hist = future_eps_hist * min_pe_ratio
+
+## Sticker Price - 15% Returns 
+sp15_default_pe_hist = fsp_default_pe_hist * ((100/115)**10)
+sp15_max_pe_hist = fsp_max_pe_hist * ((100/115)**10)
+sp15_median_pe_hist = fsp_median_pe_hist * ((100/115)**10)
+sp15_min_pe_hist = fsp_min_pe_hist * ((100/115)**10)
+
+## Sticker Price - 12% Returns 
+sp12_default_pe_hist = fsp_default_pe_hist * ((100/112)**10)
+sp12_max_pe_hist = fsp_max_pe_hist * ((100/112)**10)
+sp12_median_pe_hist = fsp_median_pe_hist * ((100/112)**10)
+sp12_min_pe_hist = fsp_min_pe_hist * ((100/112)**10)
+
+## Sticker Price - 10% Returns 
+sp10_default_pe_hist = fsp_default_pe_hist * ((100/110)**10)
+sp10_max_pe_hist = fsp_max_pe_hist * ((100/110)**10)
+sp10_median_pe_hist = fsp_median_pe_hist * ((100/110)**10)
+sp10_min_pe_hist = fsp_min_pe_hist * ((100/110)**10)
+
 columns_hist = [f'Default_P/E_Ratio({pe_10year})', f'Highest_P/E_Ratio({max_pe_ratio})', f'Median_P/E_Ratio({median_pe_ratio})', f'Lowest_P/E_Ratio({min_pe_ratio})']
+
 final_hist = pd.DataFrame(columns=columns_hist, index=index)
+
+final_hist.loc['Future_Stock_Price'] = [fsp_default_pe_hist, fsp_max_pe_hist, fsp_median_pe_hist, fsp_min_pe_hist]
+final_hist.loc['Sticker_Price_15%'] = [sp15_default_pe_hist, sp15_max_pe_hist, sp15_median_pe_hist, sp15_min_pe_hist]
+final_hist.loc['Sticker_Price_12%'] = [sp12_default_pe_hist, sp12_max_pe_hist, sp12_median_pe_hist, sp12_min_pe_hist]
+final_hist.loc['Sticker_Price_10%'] = [sp10_default_pe_hist, sp10_max_pe_hist, sp10_median_pe_hist, sp10_min_pe_hist]
 
 file_path = os.path.join(directory, f"{chosen_stock}_final_hist({round(eps_growth_rate_10year,2)*100}%)_analysis_{year}.csv")
 final_hist.to_csv(file_path, index=True)
