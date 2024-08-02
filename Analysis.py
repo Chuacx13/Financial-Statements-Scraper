@@ -179,7 +179,7 @@ final_analyst.to_csv(file_path, index=True)
 future_eps_hist = current_eps * (eps_growth_rate_10year ** 10)
 
 ## Future Stock Price
-fsp_default_pe_hist = future_eps_hist * pe_analyst
+fsp_default_pe_hist = future_eps_hist * pe_10year
 fsp_max_pe_hist = future_eps_hist * max_pe_ratio
 fsp_median_pe_hist = future_eps_hist * median_pe_ratio
 fsp_min_pe_hist = future_eps_hist * min_pe_ratio
@@ -202,6 +202,42 @@ sp10_max_pe_hist = fsp_max_pe_hist * ((100/110)**10)
 sp10_median_pe_hist = fsp_median_pe_hist * ((100/110)**10)
 sp10_min_pe_hist = fsp_min_pe_hist * ((100/110)**10)
 
+## MOS (30%) of Sticker Price - 15% Returns 
+mos3015_default_pe_hist = sp15_default_pe_hist * 0.7
+mos3015_max_pe_hist = sp15_max_pe_hist * 0.7
+mos3015_median_pe_hist = sp15_median_pe_hist * 0.7
+mos3015_min_pe_hist = sp15_min_pe_hist * 0.7
+
+## MOS (50%) of Sticker Price - 15% Returns 
+mos5015_default_pe_hist = sp15_default_pe_hist * 0.5
+mos5015_max_pe_hist = sp15_max_pe_hist * 0.5
+mos5015_median_pe_hist = sp15_median_pe_hist * 0.5
+mos5015_min_pe_hist = sp15_min_pe_hist * 0.5
+
+## MOS (30%) of Sticker Price - 12% Returns 
+mos3012_default_pe_hist = sp12_default_pe_hist * 0.7
+mos3012_max_pe_hist = sp12_max_pe_hist * 0.7
+mos3012_median_pe_hist = sp12_median_pe_hist * 0.7
+mos3012_min_pe_hist = sp12_min_pe_hist * 0.7
+
+## MOS (50%) of Sticker Price - 12% Returns 
+mos5012_default_pe_hist = sp12_default_pe_hist * 0.5
+mos5012_max_pe_hist = sp12_max_pe_hist * 0.5
+mos5012_median_pe_hist = sp12_median_pe_hist * 0.5
+mos5012_min_pe_hist = sp12_min_pe_hist * 0.5
+
+## MOS (30%) of Sticker Price - 10% Returns 
+mos3010_default_pe_hist = sp10_default_pe_hist * 0.7
+mos3010_max_pe_hist = sp10_max_pe_hist * 0.7
+mos3010_median_pe_hist = sp10_median_pe_hist * 0.7
+mos3010_min_pe_hist = sp10_min_pe_hist * 0.7
+
+## MOS (50%) of Sticker Price - 10% Returns 
+mos5010_default_pe_hist = sp10_default_pe_hist * 0.5
+mos5010_max_pe_hist = sp10_max_pe_hist * 0.5
+mos5010_median_pe_hist = sp10_median_pe_hist * 0.5
+mos5010_min_pe_hist = sp10_min_pe_hist * 0.5
+
 columns_hist = [f'Default_P/E_Ratio({pe_10year})', f'Highest_P/E_Ratio({max_pe_ratio})', f'Median_P/E_Ratio({median_pe_ratio})', f'Lowest_P/E_Ratio({min_pe_ratio})']
 
 final_hist = pd.DataFrame(columns=columns_hist, index=index)
@@ -210,6 +246,12 @@ final_hist.loc['Future_Stock_Price'] = [fsp_default_pe_hist, fsp_max_pe_hist, fs
 final_hist.loc['Sticker_Price_15%'] = [sp15_default_pe_hist, sp15_max_pe_hist, sp15_median_pe_hist, sp15_min_pe_hist]
 final_hist.loc['Sticker_Price_12%'] = [sp12_default_pe_hist, sp12_max_pe_hist, sp12_median_pe_hist, sp12_min_pe_hist]
 final_hist.loc['Sticker_Price_10%'] = [sp10_default_pe_hist, sp10_max_pe_hist, sp10_median_pe_hist, sp10_min_pe_hist]
+final_hist.loc['MOS_30%(15)'] = [mos3015_default_pe_hist, mos3015_max_pe_hist, mos3015_median_pe_hist, mos3015_min_pe_hist]
+final_hist.loc['MOS_50%(15)'] = [mos5015_default_pe_hist, mos5015_max_pe_hist, mos5015_median_pe_hist, mos5015_min_pe_hist]
+final_hist.loc['MOS_30%(12)'] = [mos3012_default_pe_hist, mos3012_max_pe_hist, mos3012_median_pe_hist, mos3012_min_pe_hist]
+final_hist.loc['MOS_50%(12)'] = [mos5012_default_pe_hist, mos5012_max_pe_hist, mos5012_median_pe_hist, mos5012_min_pe_hist]
+final_hist.loc['MOS_30%(10)'] = [mos3010_default_pe_analyst, mos3010_max_pe_hist, mos3010_median_pe_hist, mos3010_min_pe_hist]
+final_hist.loc['MOS_50%(10)'] = [mos5010_default_pe_hist, mos5010_max_pe_hist, mos5010_median_pe_hist, mos5010_min_pe_hist]
 
 file_path = os.path.join(directory, f"{chosen_stock}_final_hist({round(eps_growth_rate_10year,2)*100}%)_analysis_{year}.csv")
 final_hist.to_csv(file_path, index=True)
