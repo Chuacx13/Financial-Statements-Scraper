@@ -12,6 +12,11 @@ driver = webdriver.Chrome(service=service)
 
 driver.get("https://discountingcashflows.com/")
 
+march = ['BABA', 'LOGI']
+june = ['MFST', 'INTU']
+september = ['AAPL', 'MU', 'V']
+december = ['META', 'INTC', 'ADBE', 'ASML', 'AMZN', 'TSM', 'TTD', 'TXN', 'TSLA', 'NVDA', 'NFLX', 'MCD', 'DPZ']
+# unsure = ['KLAC', 'LRCX', 'QCOM', 'AMAT', 'KEYS', 'SWKS', 'AKAM', 'CGNX', 'SSNC', 'TER']
 time.sleep(3)
 
 driver.quit()
