@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
 import os
+import sys
 
 service = Service(executable_path="C:/Users/chuac/chromedriver.exe")
 driver = webdriver.Chrome(service=service)
@@ -74,13 +75,8 @@ elif len(operating_cash_flows) >= 5:
     }
 
 else: 
-    last_index = len(operating_cash_flows) - 1
-    operating_cash_flow_trend_data = {
-        '1-Year': [0, 0, 0], 
-        '5-Year': [0, 0, 0], 
-        f'{last_index + 1}-Year': [0, 0, 0]
-    }
-    print('Data does not span over a large enough time horizon.')
+    print(f'{chosen_stock}\'s data does not span over a long enough time horizon.')
+    sys.exit()
 
 metrics = ['Operating Cash Flow Growth Rate', 'Current Operating Cash Flow', 'Previous Operating Cash Flow']
 operating_cash_flow_trend_table = pd.DataFrame(operating_cash_flow_trend_data, index=metrics)

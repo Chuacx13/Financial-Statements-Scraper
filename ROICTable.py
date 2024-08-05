@@ -6,7 +6,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
 import os 
-
+import sys
+    
 service = Service(executable_path="C:/Users/chuac/chromedriver.exe")
 driver = webdriver.Chrome(service=service)
 
@@ -50,6 +51,10 @@ WebDriverWait(driver, 10).until(
 )
 
 years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
+if len(years) < 5: 
+    print(f'{chosen_stock}\'s data does not span over a long enough time horizon.')
+    sys.exit()
+
 operating_incomes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(9) td.formatted-value")
 tax_expenses = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(15) td.formatted-value")
 earnings_before_taxes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(14) td.formatted-value")
@@ -90,11 +95,19 @@ roic_table.loc['Tax Rate'] = roic_table.loc['Tax Expense'] / roic_table.loc['Ope
 roic_table.loc['Net Operating Profit After Taxes'] = roic_table.loc['Operating Income'] * (1 - roic_table.loc['Tax Rate'])
 roic_table.loc['ROIC'] = roic_table.loc['Net Operating Profit After Taxes'] / (roic_table.loc['Equity'] + roic_table.loc['Debt']) * 100
 
-roic_trend_data = {
-    'ROIC 1-Year': roic_table.loc['ROIC'].iloc[0], 
-    'ROIC 5-Year': roic_table.loc['ROIC'].iloc[0:5].sum() / 5, 
-    'ROIC 10-Year': roic_table.loc['ROIC'].iloc[0:10].sum() / 10
-}
+if len(years) >= 10:
+    roic_trend_data = {
+        'ROIC 1-Year': roic_table.loc['ROIC'].iloc[0], 
+        'ROIC 5-Year': roic_table.loc['ROIC'].iloc[0:5].sum() / 5, 
+        'ROIC 10-Year': roic_table.loc['ROIC'].iloc[0:10].sum() / 10
+    }   
+elif len(years) >= 5:
+    last_index = len(equities)
+    roic_trend_data = {
+        'ROIC 1-Year': roic_table.loc['ROIC'].iloc[0], 
+        'ROIC 5-Year': roic_table.loc['ROIC'].iloc[0:5].sum() / 5, 
+        f'ROIC {last_index}-Year': roic_table.loc['ROIC'].iloc[0:last_index].sum() / last_index
+    } 
 
 roic_trend_table = pd.DataFrame(roic_trend_data, index=[0])
 
