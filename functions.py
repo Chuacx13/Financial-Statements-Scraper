@@ -12,12 +12,12 @@ def generate_roic_table(driver, ticker, year):
     Parameters:
     driver (selenium.webdriver.Chrome): The Selenium WebDriver instance used for web automation.
     ticker (str): The ticker symbol of the company to generate the ROIC table for.
-    year (str): The year for which the ROIC table is being generated.
+    year (str): The year for which the ROIC table is to be generated.
 
     The function will scrape financial data such as Operating Income, Tax Expense, Earnings Before Taxes, Total Debt and Equity from the website. 
     It then calculates Tax Rate, Net Operating Profit After Taxes and ROIC and saves them as CSV files in a structured directory format.
     """
-    
+
     roic_table_data = {}
 
     WebDriverWait(driver, 10).until(
@@ -126,3 +126,67 @@ def generate_roic_table(driver, ticker, year):
     file_path = os.path.join(directory, f'{ticker}_roic_trend_{year}.csv')
     roic_trend_table.to_csv(file_path, index=False)
 
+def generate_equity_trend(driver, ticker, year):
+
+    """
+    Generates a trend analysis of equity values over different time periods, using data from a financial website.
+
+    Parameters:
+    driver (webdriver.Chrome): The Selenium WebDriver instance used for web automation.
+    ticker (str): The ticker symbol of the company to generate the equity trend for.
+    year (str): The year for which the equity trend data is to be generated.
+
+    The function will scrape Equity data from the website. 
+    It then calculates Equity Growth Rates over different time horizons and saves them as CSV files in a structured directory format.
+    """
+    financials = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+    )
+    financials.click()
+
+    time.sleep(3)
+
+    balance_sheet = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(2)"))
+    )
+    balance_sheet.click()
+
+    time.sleep(3)
+
+    equities = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(28) td.formatted-value")
+
+    if len(equities) >= 10:
+        first_year = float(equities[0].text.replace(',', ''))
+        second_year = float(equities[1].text.replace(',', ''))
+        fifth_year = float(equities[4].text.replace(',', ''))
+        tenth_year = float(equities[9].text.replace(',', ''))
+
+        equity_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+        }
+
+    elif len(equities) >= 5:
+        last_index = len(equities) - 1
+        first_year = float(equities[0].text.replace(',', ''))
+        second_year = float(equities[1].text.replace(',', ''))
+        fifth_year = float(equities[4].text.replace(',', ''))
+        last_year = float(equities[last_index].text.replace(',', ''))
+
+        equity_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+        }
+
+    else: 
+        return
+
+    metrics = ['Equity Growth Rate', 'Current Equity', 'Previous Equity']
+    equity_trend_table = pd.DataFrame(equity_trend_data, index=metrics)
+
+    directory = f"Final_Results/{ticker}/{year}"
+    
+    file_path = os.path.join(directory, f"{ticker}_equity_trend_{year}.csv")
+    equity_trend_table.to_csv(file_path, index=True)
