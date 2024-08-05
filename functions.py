@@ -6,6 +6,18 @@ import pandas as pd
 import os 
 
 def generate_roic_table(driver, ticker, year):
+    """
+    Generates a Return on Invested Capital (ROIC) table for a specified company and year, using data from a financial website.
+
+    Parameters:
+    driver (selenium.webdriver.Chrome): The Selenium WebDriver instance used for web automation.
+    ticker (str): The ticker symbol of the company to generate the ROIC table for.
+    year (str): The year for which the ROIC table is being generated.
+
+    The function will scrape financial data such as Operating Income, Tax Expense, Earnings Before Taxes, Total Debt and Equity from the website. 
+    It then calculates Tax Rate, Net Operating Profit After Taxes and ROIC and saves them as CSV files in a structured directory format.
+    """
+    
     roic_table_data = {}
 
     WebDriverWait(driver, 10).until(
@@ -42,6 +54,10 @@ def generate_roic_table(driver, ticker, year):
     )
 
     years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
+    if len(years) < 5: 
+        print(f'{ticker}\'s data does not span over a long enough time horizon.')
+        return
+
     operating_incomes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(9) td.formatted-value")
     tax_expenses = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(15) td.formatted-value")
     earnings_before_taxes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(14) td.formatted-value")
@@ -82,11 +98,20 @@ def generate_roic_table(driver, ticker, year):
     roic_table.loc['Net Operating Profit After Taxes'] = roic_table.loc['Operating Income'] * (1 - roic_table.loc['Tax Rate'])
     roic_table.loc['ROIC'] = roic_table.loc['Net Operating Profit After Taxes'] / (roic_table.loc['Equity'] + roic_table.loc['Debt']) * 100
 
-    roic_trend_data = {
-        'ROIC 1-Year': roic_table.loc['ROIC'].iloc[0], 
-        'ROIC 5-Year': roic_table.loc['ROIC'].iloc[0:5].sum() / 5, 
-        'ROIC 10-Year': roic_table.loc['ROIC'].iloc[0:10].sum() / 10
-    }
+    # Calculate average ROIC growth over different time horizons
+    if len(years) >= 10:
+        roic_trend_data = {
+            'ROIC 1-Year': roic_table.loc['ROIC'].iloc[0], 
+            'ROIC 5-Year': roic_table.loc['ROIC'].iloc[0:5].sum() / 5, 
+            'ROIC 10-Year': roic_table.loc['ROIC'].iloc[0:10].sum() / 10
+        }   
+    elif len(years) >= 5:
+        last_index = len(equities)
+        roic_trend_data = {
+            'ROIC 1-Year': roic_table.loc['ROIC'].iloc[0], 
+            'ROIC 5-Year': roic_table.loc['ROIC'].iloc[0:5].sum() / 5, 
+            f'ROIC {last_index}-Year': roic_table.loc['ROIC'].iloc[0:last_index].sum() / last_index
+        } 
 
     roic_trend_table = pd.DataFrame(roic_trend_data, index=[0])
 
@@ -95,11 +120,9 @@ def generate_roic_table(driver, ticker, year):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    # Save DataFrame to CSV file in the created directory
     file_path = os.path.join(directory, f'{ticker}_roic_{year}.csv')
     roic_table.to_csv(file_path)
 
     file_path = os.path.join(directory, f'{ticker}_roic_trend_{year}.csv')
     roic_trend_table.to_csv(file_path, index=False)
-
 
