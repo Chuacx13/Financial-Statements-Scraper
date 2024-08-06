@@ -359,12 +359,60 @@ def generate_free_cash_flow_trend(driver, ticker, year):
     cash_flow_trend_table = pd.DataFrame(cash_flow_trend_data, index=metrics)
 
     directory = f"Final_Results/{ticker}/{year}"
-
     file_path = os.path.join(directory, f"{ticker}_cash_flow_trend_{year}.csv")
     cash_flow_trend_table.to_csv(file_path, index=True)
 
+def generate_operating_cash_flow_trend(driver, ticker, year):
+    """
+    Generates a trend analysis of operating cash flow values over different time periods, using data from a financial website.
 
+    Parameters:
+    driver (webdriver.Chrome): The Selenium WebDriver instance used for web automation.
+    ticker (str): The ticker symbol of the company to generate the operating cash flow trend for.
+    year (str): The year for which the operating cash flow trend data is to be generated.
 
+    The function will scrape Operating Cash Flow data from the website. 
+    It then calculates Operating Cash Flow Growth Rates over different time horizons and saves them as CSV files in a structured directory format.
+    """
+
+    operating_cash_flows = WebDriverWait(driver, 10).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(3) td.formatted-value"))
+    )
+
+    if len(operating_cash_flows) >= 10:
+        first_year = float(operating_cash_flows[1].text.replace(',', ''))
+        second_year = float(operating_cash_flows[2].text.replace(',', ''))
+        fifth_year = float(operating_cash_flows[5].text.replace(',', ''))
+        tenth_year = float(operating_cash_flows[10].text.replace(',', ''))
+        
+        operating_cash_flow_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+        }
+
+    elif len(operating_cash_flows) >= 5:
+        last_index = len(operating_cash_flows) - 1
+        first_year = float(operating_cash_flows[0].text.replace(',', ''))
+        second_year = float(operating_cash_flows[1].text.replace(',', ''))
+        fifth_year = float(operating_cash_flows[4].text.replace(',', ''))
+        last_year = float(operating_cash_flows[last_index].text.replace(',', ''))
+
+        operating_cash_flow_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+        }
+
+    else: 
+        return
+
+    metrics = ['Operating Cash Flow Growth Rate', 'Current Operating Cash Flow', 'Previous Operating Cash Flow']
+    operating_cash_flow_trend_table = pd.DataFrame(operating_cash_flow_trend_data, index=metrics)
+
+    directory = f"Final_Results/{ticker}/{year}"
+    file_path = os.path.join(directory, f"{ticker}_operating_cash_flow_trend_{year}.csv")
+    operating_cash_flow_trend_table.to_csv(file_path, index=True)
 
 
 
