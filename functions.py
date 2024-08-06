@@ -179,6 +179,73 @@ def generate_equity_trend(driver, ticker, year):
     file_path = os.path.join(directory, f"{ticker}_equity_trend_{year}.csv")
     equity_trend_table.to_csv(file_path, index=True)
 
+def generate_eps_trend(driver, ticker, year): 
+    """
+    Generates a trend analysis of eps values over different time periods, using data from a financial website.
+
+    Parameters:
+    driver (webdriver.Chrome): The Selenium WebDriver instance used for web automation.
+    ticker (str): The ticker symbol of the company to generate the eps trend for.
+    year (str): The year for which the eps trend data is to be generated.
+
+    The function will scrape EPS data from the website. 
+    It then calculates EPS Growth Rates over different time horizons and saves them as CSV files in a structured directory format.
+    """
+    eps_trend_data = {}
+
+    financials = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+    )
+    financials.click()
+
+    time.sleep(3)
+
+    income_statement = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item"))
+    )
+    income_statement.click()
+
+    time.sleep(3)
+
+    eps = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(20) td.formatted-value")
+
+    if len(eps) >= 10:
+        first_year = float(eps[1].text.replace(',', ''))
+        second_year = float(eps[2].text.replace(',', ''))
+        fifth_year = float(eps[5].text.replace(',', ''))
+        tenth_year = float(eps[10].text.replace(',', ''))
+        
+        eps_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+        }
+
+    elif len(eps) >= 5:
+        last_index = len(eps) - 1
+        first_year = float(eps[0].text.replace(',', ''))
+        second_year = float(eps[1].text.replace(',', ''))
+        fifth_year = float(eps[4].text.replace(',', ''))
+        last_year = float(eps[last_index].text.replace(',', ''))
+
+        eps_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+        }
+
+    else: 
+        return
+
+    metrics = ['EPS Growth Rate', 'Current EPS', 'Previous EPS']
+    eps_trend_table = pd.DataFrame(eps_trend_data, index=metrics)
+
+    directory = f"Final_Results/{ticker}/{year}"
+
+    file_path = os.path.join(directory, f"{ticker}_eps_trend_{year}.csv")
+    eps_trend_table.to_csv(file_path, index=True)
+
+
 
 
 

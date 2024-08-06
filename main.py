@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 import time
-from functions import generate_roic_table, generate_equity_trend 
+from functions import generate_roic_table, generate_equity_trend, generate_eps_trend
 
 service = Service(executable_path="C:/Users/chuac/chromedriver.exe")
 driver = webdriver.Chrome(service=service)
@@ -24,6 +24,11 @@ for ticker in march:
         generate_equity_trend(driver, ticker, '2024')
     except Exception as e:
         print(f"Error generating Equity Trend for {ticker}: {e}")
+
+    try:
+        generate_eps_trend(driver, ticker, '2024')
+    except Exception as e:
+        print(f"Error generating EPS Trend for {ticker}: {e}")
     
     time.sleep(5)
 
