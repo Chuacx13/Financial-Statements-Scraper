@@ -245,6 +245,62 @@ def generate_eps_trend(driver, ticker, year):
     file_path = os.path.join(directory, f"{ticker}_eps_trend_{year}.csv")
     eps_trend_table.to_csv(file_path, index=True)
 
+def generate_revenue_trend(driver, ticker, year):
+    """
+    Generates a trend analysis of revenue values over different time periods, using data from a financial website.
+
+    Parameters:
+    driver (webdriver.Chrome): The Selenium WebDriver instance used for web automation.
+    ticker (str): The ticker symbol of the company to generate the revenue trend for.
+    year (str): The year for which the revenue trend data is to be generated.
+
+    The function will scrape Revenue data from the website. 
+    It then calculates Revenue Growth Rates over different time horizons and saves them as CSV files in a structured directory format.
+    """
+
+    revenues = WebDriverWait(driver, 10).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(2) td.formatted-value"))
+    )
+
+    if len(revenues) >= 10:
+        first_year = float(revenues[1].text.replace(',', ''))
+        second_year = float(revenues[2].text.replace(',', ''))
+        fifth_year = float(revenues[5].text.replace(',', ''))
+        tenth_year = float(revenues[10].text.replace(',', ''))
+        
+        revenue_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+        }
+
+    elif len(revenues) >= 5:
+        last_index = len(revenues) - 1
+        first_year = float(revenues[0].text.replace(',', ''))
+        second_year = float(revenues[1].text.replace(',', ''))
+        fifth_year = float(revenues[4].text.replace(',', ''))
+        last_year = float(revenues[last_index].text.replace(',', ''))
+
+        revenue_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+        }
+
+    else: 
+        return
+
+    metrics = ['Revenue Growth Rate', 'Current Revenue', 'Previous Revenue']
+    revenue_trend_table = pd.DataFrame(revenue_trend_data, index=metrics)
+
+    directory = f"Final_Results/{ticker}/{year}"
+
+    file_path = os.path.join(directory, f"{ticker}_revenue_trend_{year}.csv")
+    revenue_trend_table.to_csv(file_path, index=True)
+
+
+
+
 
 
 
