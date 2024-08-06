@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 import time
-from functions import generate_roic_table, generate_equity_trend, generate_eps_trend, generate_revenue_trend
+from functions import generate_roic_table, generate_equity_trend, generate_eps_trend, generate_revenue_trend, generate_free_cash_flow_trend
 
 service = Service(executable_path="C:/Users/chuac/chromedriver.exe")
 driver = webdriver.Chrome(service=service)
@@ -34,6 +34,11 @@ for ticker in march:
         generate_revenue_trend(driver, ticker, '2024')
     except Exception as e:
         print(f"Error generating Revenue Trend for {ticker}: {e}")
+
+    try:
+        generate_free_cash_flow_trend(driver, ticker, '2024')
+    except Exception as e:
+        print(f"Error generating Free Cash Flow Trend for {ticker}: {e}")
     
     time.sleep(5)
 

@@ -298,7 +298,70 @@ def generate_revenue_trend(driver, ticker, year):
     file_path = os.path.join(directory, f"{ticker}_revenue_trend_{year}.csv")
     revenue_trend_table.to_csv(file_path, index=True)
 
+def generate_free_cash_flow_trend(driver, ticker, year):
+    """
+    Generates a trend analysis of free cash flow values over different time periods, using data from a financial website.
 
+    Parameters:
+    driver (webdriver.Chrome): The Selenium WebDriver instance used for web automation.
+    ticker (str): The ticker symbol of the company to generate the free cash flow trend for.
+    year (str): The year for which the free cash flow trend data is to be generated.
+
+    The function will scrape Free Cash Flow data from the website. 
+    It then calculates Free Cash Flow Growth Rates over different time horizons and saves them as CSV files in a structured directory format.
+    """
+
+    financials = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+    )
+    financials.click()
+
+    time.sleep(3)
+
+    cash_flow_statement = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(3)"))
+    )
+    cash_flow_statement.click()
+
+    time.sleep(3)
+
+    cash_flows = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(30) td.formatted-value")
+
+    if len(cash_flows) >= 10:
+        first_year = float(cash_flows[1].text.replace(',', ''))
+        second_year = float(cash_flows[2].text.replace(',', ''))
+        fifth_year = float(cash_flows[5].text.replace(',', ''))
+        tenth_year = float(cash_flows[10].text.replace(',', ''))
+        
+        cash_flow_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+        }
+
+    elif len(cash_flows) >= 5:
+        last_index = len(cash_flows) - 1
+        first_year = float(cash_flows[0].text.replace(',', ''))
+        second_year = float(cash_flows[1].text.replace(',', ''))
+        fifth_year = float(cash_flows[4].text.replace(',', ''))
+        last_year = float(cash_flows[last_index].text.replace(',', ''))
+
+        cash_flow_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+        }
+
+    else: 
+        return
+
+    metrics = ['Cash Flow Growth Rate', 'Current Cash Flow', 'Previous Cash Flow']
+    cash_flow_trend_table = pd.DataFrame(cash_flow_trend_data, index=metrics)
+
+    directory = f"Final_Results/{ticker}/{year}"
+
+    file_path = os.path.join(directory, f"{ticker}_cash_flow_trend_{year}.csv")
+    cash_flow_trend_table.to_csv(file_path, index=True)
 
 
 
