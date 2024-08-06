@@ -139,22 +139,10 @@ def generate_equity_trend(driver, ticker, year):
     The function will scrape Equity data from the website. 
     It then calculates Equity Growth Rates over different time horizons and saves them as CSV files in a structured directory format.
     """
-    financials = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+
+    equities = WebDriverWait(driver, 10).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(28) td.formatted-value"))
     )
-    financials.click()
-
-    time.sleep(3)
-
-    balance_sheet = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(2)"))
-    )
-    balance_sheet.click()
-
-    time.sleep(3)
-
-    equities = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(28) td.formatted-value")
-
     if len(equities) >= 10:
         first_year = float(equities[0].text.replace(',', ''))
         second_year = float(equities[1].text.replace(',', ''))
@@ -190,3 +178,7 @@ def generate_equity_trend(driver, ticker, year):
     
     file_path = os.path.join(directory, f"{ticker}_equity_trend_{year}.csv")
     equity_trend_table.to_csv(file_path, index=True)
+
+
+
+

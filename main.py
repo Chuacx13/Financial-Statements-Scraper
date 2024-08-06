@@ -23,7 +23,7 @@ for ticker in march:
     try:
         generate_equity_trend(driver, ticker, '2024')
     except Exception as e:
-        print(f"Error generating ROIC table for {ticker}: {e}")
+        print(f"Error generating Equity Trend for {ticker}: {e}")
     
     time.sleep(5)
 
