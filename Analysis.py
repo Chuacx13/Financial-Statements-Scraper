@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
 import os
-
+import sys
 
 service = Service(executable_path="C:/Users/chuac/chromedriver.exe")
 driver = webdriver.Chrome(service=service)
@@ -69,7 +69,8 @@ elif len(pe_ratios) >= 5:
     last_index = len(pe_ratios) - 1
     pe_ratios = pe_ratios[1:last_index]
 else:
-    print('Data does not span over a large enough time horizon.')
+    print(f'{chosen_stock}\'s data does not span over a long enough time horizon.')
+    sys.exit()
 
 for pe_ratio in pe_ratios:
     pe_ratios_list.append(float(pe_ratio.text.replace(',', '')))
@@ -172,7 +173,7 @@ if not os.path.exists(directory):
     os.makedirs(directory)
 
 # Save DataFrame to CSV file in the created directory
-file_path = os.path.join(directory, f"{chosen_stock}_final_analyst({round(eps_growth_rate_analyst_input, 2)*100}%)_analysis_{year}.csv")
+file_path = os.path.join(directory, f"{chosen_stock}_final_analyst({round(eps_growth_rate_analyst_input*100,2)}%)_analysis_{year}.csv")
 final_analyst.to_csv(file_path, index=True)
 
 # Historical Analysis
@@ -250,9 +251,9 @@ final_hist.loc['MOS_30%(15)'] = [mos3015_default_pe_hist, mos3015_max_pe_hist, m
 final_hist.loc['MOS_50%(15)'] = [mos5015_default_pe_hist, mos5015_max_pe_hist, mos5015_median_pe_hist, mos5015_min_pe_hist]
 final_hist.loc['MOS_30%(12)'] = [mos3012_default_pe_hist, mos3012_max_pe_hist, mos3012_median_pe_hist, mos3012_min_pe_hist]
 final_hist.loc['MOS_50%(12)'] = [mos5012_default_pe_hist, mos5012_max_pe_hist, mos5012_median_pe_hist, mos5012_min_pe_hist]
-final_hist.loc['MOS_30%(10)'] = [mos3010_default_pe_analyst, mos3010_max_pe_hist, mos3010_median_pe_hist, mos3010_min_pe_hist]
+final_hist.loc['MOS_30%(10)'] = [mos3010_default_pe_hist, mos3010_max_pe_hist, mos3010_median_pe_hist, mos3010_min_pe_hist]
 final_hist.loc['MOS_50%(10)'] = [mos5010_default_pe_hist, mos5010_max_pe_hist, mos5010_median_pe_hist, mos5010_min_pe_hist]
 
-file_path = os.path.join(directory, f"{chosen_stock}_final_hist({round(eps_growth_rate_10year,2)*100}%)_analysis_{year}.csv")
+file_path = os.path.join(directory, f"{chosen_stock}_final_hist({round(eps_growth_rate_10year*100, 2)}%)_analysis_{year}.csv")
 final_hist.to_csv(file_path, index=True)
 
