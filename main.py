@@ -81,26 +81,119 @@ for ticker, growth_rate in march.items():
 
     time.sleep(5)
 
-# for ticker in june:
-#     try:
-#         generate_roic_table(driver, ticker, '2024')
-#         time.sleep(10)
-#     except Exception as e:
-#         print(f"Error generating ROIC table for {ticker}: {e}")
+for ticker, growth_rate in june.items():
+    try:
+        generate_roic_table(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating ROIC table for {ticker}: {e}")
 
-# for ticker in september:
-#     try:
-#         generate_roic_table(driver, ticker, '2023')
-#         time.sleep(10)
-#     except Exception as e:
-#         print(f"Error generating ROIC table for {ticker}: {e}")
+    try:
+        generate_equity_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Equity Trend for {ticker}: {e}")
 
-# for ticker in december:
-#     try:
-#         generate_roic_table(driver, ticker, '2023')
-#         time.sleep(10)
-#     except Exception as e:
-#         print(f"Error generating ROIC table for {ticker}: {e}")
+    try:
+        generate_eps_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating EPS Trend for {ticker}: {e}")
+
+    try:
+        generate_revenue_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Revenue Trend for {ticker}: {e}")
+
+    try:
+        generate_free_cash_flow_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Free Cash Flow Trend for {ticker}: {e}")
+
+    try:   
+        generate_operating_cash_flow_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Operating Cash Flow Trend for {ticker}: {e}")
+
+    try:
+        generate_analysis_results(driver, ticker, '2023', growth_rate)
+    except Exception as e:
+        print(f"Error generating final analysis for {ticker}: {e}")
+
+    time.sleep(5)
+
+for ticker, growth_rate in september.items():
+    try:
+        generate_roic_table(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating ROIC table for {ticker}: {e}")
+
+    try:
+        generate_equity_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Equity Trend for {ticker}: {e}")
+
+    try:
+        generate_eps_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating EPS Trend for {ticker}: {e}")
+
+    try:
+        generate_revenue_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Revenue Trend for {ticker}: {e}")
+
+    try:
+        generate_free_cash_flow_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Free Cash Flow Trend for {ticker}: {e}")
+
+    try:   
+        generate_operating_cash_flow_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Operating Cash Flow Trend for {ticker}: {e}")
+
+    try:
+        generate_analysis_results(driver, ticker, '2023', growth_rate)
+    except Exception as e:
+        print(f"Error generating final analysis for {ticker}: {e}")
+
+    time.sleep(5)
+
+for ticker, growth_rate in december.items():
+    try:
+        generate_roic_table(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating ROIC table for {ticker}: {e}")
+
+    try:
+        generate_equity_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Equity Trend for {ticker}: {e}")
+
+    try:
+        generate_eps_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating EPS Trend for {ticker}: {e}")
+
+    try:
+        generate_revenue_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Revenue Trend for {ticker}: {e}")
+
+    try:
+        generate_free_cash_flow_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Free Cash Flow Trend for {ticker}: {e}")
+
+    try:   
+        generate_operating_cash_flow_trend(driver, ticker, '2023')
+    except Exception as e:
+        print(f"Error generating Operating Cash Flow Trend for {ticker}: {e}")
+
+    try:
+        generate_analysis_results(driver, ticker, '2023', growth_rate)
+    except Exception as e:
+        print(f"Error generating final analysis for {ticker}: {e}")
+
+    time.sleep(5)
 
 driver.quit()
     
