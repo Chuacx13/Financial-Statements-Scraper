@@ -6,7 +6,7 @@ This project is a Python-based web scraper designed to extract financial data fr
 
 - Automated scraping of financial statements.
 - Customizable projected growth rates.
-- Outputs suggested Sticker Price and Margin of Safety.
+- Output suggested Sticker Prices with Margin of Safety Price.
 - Output saved in CSV format.
 
 ## Prerequisites
