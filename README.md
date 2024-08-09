@@ -25,6 +25,12 @@ Clone the repository using the following command:
 git clone git@github.com:Chuacx13/Financial-Statements-Scraper.git
 ```
 
+Ensure that you are in the right directory by using the following command:
+
+```bash
+cd Financial-Statements-Scraper
+```
+
 Install these dependences by using the following command:
 
 ```bash
