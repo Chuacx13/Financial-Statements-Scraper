@@ -4,7 +4,7 @@ This project is a Python-based web scraper designed to extract financial data fr
 
 ## Features
 
-- Automated scraping of financial statements.
+- Automated scraping of financial statements of your chosen ticker.
 - Customizable projected growth rates.
 - Output suggested Sticker Prices with Margin of Safety Price.
 - Output saved in CSV format.
