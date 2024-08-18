@@ -1,13 +1,19 @@
 # Financial Statements Scraper
 
-This project is a Python-based web scraper designed to extract financial data from https://discountingcashflows.com. The tool leverages Selenium WebDriver to automate the data collection process and save the output as CSV files.
+## Project Overview
+
+This project is a Python-based web scraper designed to extract financial data from https://discountingcashflows.com. The project leverages Selenium WebDriver to automate the data collection process before saving the scraped data in a CSV file. Additionally, using the scraped data, a stock analysis is conducted to determine the fair price of a stock, along with its margin of safety prices. This analysis is inspired by the value investing tips and strategies suggested by Phil Town's Rule No. 1 book.
 
 ## Features
 
 - Automated scraping of financial statements of your chosen ticker.
-- Customizable projected growth rates.
-- Output suggested Sticker Prices with Margin of Safety Price.
-- Output saved in CSV format.
+- Output contains suggested Sticker Prices of a stock, along with its Margin of Safety Price.
+- Output saved in CSV format for easy viewing.
+
+## Limitations
+
+1. Stock analysis is done with referenced to quantitative strategies mentioned in Phil Town's Rule No. 1 book. Actual fair price still have to be determined with other information such as the company's quality of management and economic moat.
+2. Scraped data only contains some metrics found in the company's financial statements (eg. EPS, Free Cash Flow, Revenue and more). Extracted metrics are chosen based on the requirement of Phil Town's suggested valuation strategies.
 
 ## Prerequisites
 
@@ -39,7 +45,7 @@ pip install -r requirements.txt
 
 ## Run the Code
 
-Run the code by using the following commnad:
+Run the code by using the following command:
 
 ```bash
 python main.py
