@@ -16,38 +16,37 @@ driver.get("https://discountingcashflows.com/")
 eps_trend_data = {}
 
 WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, "search_form"))
+    EC.presence_of_element_located((By.ID, "SearchKeyword"))
 )
 
-year = '2023'
+year = '2024'
 chosen_stock = "AAPL"
-input_ticker = driver.find_element(By.CLASS_NAME, "search-input")
+input_ticker = driver.find_element(By.ID, "SearchKeyword")
 input_ticker.clear()
 input_ticker.send_keys(chosen_stock) 
 
-
 first_ticker = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "tr.clickable-row"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "#SearchResults ul li:first-child a"))
 )
 first_ticker.click()
 
 time.sleep(2)
 
 financials = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+    EC.presence_of_element_located((By.ID, "financialsIcon"))
 )
 financials.click()
 
 time.sleep(2)
 
 income_statement = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:first-child a"))
 )
 income_statement.click()
 
 time.sleep(2)
 
-eps = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(20) td.formatted-value")
+eps = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(21) td.formatted-value")
 
 if len(eps) >= 10:
     first_year = float(eps[1].text.replace(',', ''))
@@ -55,11 +54,18 @@ if len(eps) >= 10:
     fifth_year = float(eps[5].text.replace(',', ''))
     tenth_year = float(eps[10].text.replace(',', ''))
     
-    eps_trend_data = {
-        '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-        '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-        '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
-    }
+    if first_year < 0 or second_year < 0 or fifth_year < 0 or tenth_year < 0: 
+        eps_trend_data = {
+            '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+            '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year - tenth_year)/tenth_year) * 100, first_year, tenth_year]
+        }
+    else:
+        eps_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+        }
 
 elif len(eps) >= 5:
     last_index = len(eps) - 1
@@ -68,11 +74,18 @@ elif len(eps) >= 5:
     fifth_year = float(eps[4].text.replace(',', ''))
     last_year = float(eps[last_index].text.replace(',', ''))
 
-    eps_trend_data = {
-        '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-        '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-        f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
-    }
+    if first_year < 0 or second_year < 0 or fifth_year < 0 or last_year < 0: 
+        eps_trend_data = {
+            '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+            '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year - last_year)/last_year) * 100, first_year, last_year]
+        }
+    else:
+        eps_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+        }
 
 else: 
     print(f'{chosen_stock}\'s data does not span over a long enough time horizon.')
