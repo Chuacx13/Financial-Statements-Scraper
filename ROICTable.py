@@ -16,41 +16,42 @@ driver.get("https://discountingcashflows.com/")
 roic_table_data = {}
 
 WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, "search_form"))
+    EC.presence_of_element_located((By.ID, "SearchKeyword"))
 )
 
 chosen_stock = "AAPL"
-year = '2023'
-input_ticker = driver.find_element(By.CLASS_NAME, "search-input")
+year = '2024'
+input_ticker = driver.find_element(By.ID, "SearchKeyword")
 input_ticker.clear()
 input_ticker.send_keys(chosen_stock)
 
 first_ticker = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "tr.clickable-row"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "#SearchResults ul li:first-child a"))
 )
 first_ticker.click()
 
 time.sleep(2)
 
 financials = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+    EC.presence_of_element_located((By.ID, "financialsIcon"))
 )
 financials.click()
 
 time.sleep(2)
 
 income_statement = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:first-child a"))
 )
 income_statement.click()
 
 time.sleep(2)
 
 WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "#report-table tbody tr td a"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(1) small a"))
 )
 
-years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
+years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(1) small a")
+
 if len(years) < 5: 
     print(f'{chosen_stock}\'s data does not span over a long enough time horizon.')
     sys.exit()
@@ -58,30 +59,32 @@ if len(years) < 5:
 operating_incomes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(9) td.formatted-value")
 tax_expenses = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(15) td.formatted-value")
 earnings_before_taxes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(14) td.formatted-value")
+
 for i in range(len(years)):
     roic_table_data[years[i].text] = [0, float(operating_incomes[i+1].text.replace(',', '')), float(tax_expenses[i+1].text.replace(',', '')), float(earnings_before_taxes[i+1].text.replace(',', '')), 0, 0, 0, 0, 0, 0]
 
 time.sleep(2)
 
 financials = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+    EC.presence_of_element_located((By.ID, "financialsIcon"))
 )
 financials.click()
 
 time.sleep(2)
 
 balance_sheet = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(2)"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:nth-of-type(2) a"))
 )
 balance_sheet.click()
 
 time.sleep(2)
 
-years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
-short_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(19) td.formatted-value")
-long_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(25) td.formatted-value")
-total_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(37) td.formatted-value")
-equities = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(28) td.formatted-value")
+years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(1) small a")
+short_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(20) td.formatted-value")
+long_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(26) td.formatted-value")
+total_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(42) td.formatted-value")
+equities = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(31) td.formatted-value")
+
 for i in range(len(years)):
     roic_table_data[years[i].text][4] = float(short_term_debts[i].text.replace(',', ''))
     roic_table_data[years[i].text][5] = float(long_term_debts[i].text.replace(',', ''))
