@@ -16,32 +16,32 @@ driver.get("https://discountingcashflows.com/")
 cash_flow_trend_data = {}
 
 WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, "search_form"))
+    EC.presence_of_element_located((By.ID, "SearchKeyword"))
 )
 
-year = '2023'
+year = '2024'
 chosen_stock = "AAPL"
-input_ticker = driver.find_element(By.CLASS_NAME, "search-input")
+input_ticker = driver.find_element(By.ID, "SearchKeyword")
 input_ticker.clear()
 input_ticker.send_keys(chosen_stock) 
 
 
 first_ticker = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "tr.clickable-row"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "#SearchResults ul li:first-child a"))
 )
 first_ticker.click()
 
 time.sleep(2)
 
 financials = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+    EC.presence_of_element_located((By.ID, "financialsIcon"))
 )
 financials.click()
 
 time.sleep(2)
 
 cash_flow_statement = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(3)"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:nth-of-type(3) a"))
 )
 cash_flow_statement.click()
 
@@ -49,17 +49,26 @@ time.sleep(2)
 
 cash_flows = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(30) td.formatted-value")
 
+time.sleep(2)
+
 if len(cash_flows) >= 10:
     first_year = float(cash_flows[1].text.replace(',', ''))
     second_year = float(cash_flows[2].text.replace(',', ''))
     fifth_year = float(cash_flows[5].text.replace(',', ''))
     tenth_year = float(cash_flows[10].text.replace(',', ''))
-    
-    cash_flow_trend_data = {
-        '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-        '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-        '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
-    }
+
+    if first_year < 0 or second_year < 0 or fifth_year < 0 or tenth_year < 0: 
+        cash_flow_trend_data = {
+            '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+            '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year - tenth_year)/tenth_year) * 100, first_year, tenth_year]
+        }
+    else:
+        cash_flow_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+        }
 
 elif len(cash_flows) >= 5:
     last_index = len(cash_flows) - 1
@@ -68,11 +77,18 @@ elif len(cash_flows) >= 5:
     fifth_year = float(cash_flows[4].text.replace(',', ''))
     last_year = float(cash_flows[last_index].text.replace(',', ''))
 
-    cash_flow_trend_data = {
-        '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-        '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-        f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
-    }
+    if first_year < 0 or second_year < 0 or fifth_year < 0 or last_year < 0: 
+        cash_flow_trend_data = {
+            '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+            '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+            f'{last_index + 1}-Year': [((first_year - last_year)/last_year) * 100, first_year, last_year]
+        }
+    else:
+        cash_flow_trend_data = {
+            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+        }
 
 else: 
     print(f'{chosen_stock}\'s data does not span over a long enough time horizon.')
