@@ -14,27 +14,28 @@ driver = webdriver.Chrome(service=service)
 driver.get("https://discountingcashflows.com/")
 
 WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, "search_form"))
+    EC.presence_of_element_located((By.ID, "SearchKeyword"))
 )
 
-year = '2023'
+year = '2024'
 chosen_stock = "AAPL"
-input_ticker = driver.find_element(By.CLASS_NAME, "search-input")
+input_ticker = driver.find_element(By.ID, "SearchKeyword")
 input_ticker.clear()
 input_ticker.send_keys(chosen_stock) 
 
 first_ticker = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "tr.clickable-row"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "#SearchResults ul li:first-child a"))
 )
 first_ticker.click()
 
 time.sleep(2)
 
 # Current EPS
-current_eps = float(driver.find_element(By.CSS_SELECTOR, "div.company-container div.col-sm:nth-of-type(2) ul.list-group li:nth-of-type(5) span").text)
+current_eps = float(driver.find_element(By.CSS_SELECTOR, "#company_details div div:nth-of-type(2) ul li:nth-of-type(5) span:nth-of-type(2)").text)
 
 # EPS Growth Rate (Historical)
 eps_trend = pd.read_csv(f'Final_Results/{chosen_stock}/{year}/{chosen_stock}_equity_trend_{year}.csv')
+print(eps_trend)
 eps_growth_rate_10year = eps_trend.iloc[0, 3]/100 + 1
 
 # EPS Growth Rate (Analyst)
@@ -49,25 +50,27 @@ median_pe_ratio = 0
 max_pe_ratio = 0
 min_pe_ratio = 0 
 financials = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+    EC.presence_of_element_located((By.ID, "financialsIcon"))
 )
 financials.click()
 
 time.sleep(2)
 
 ratios = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(4)"))
+    EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:nth-of-type(5) a"))
 )
 ratios.click()
 
-pe_ratios = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(2) td.formatted-value")
+time.sleep(5)
+
+pe_ratios = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(2) td")
 pe_ratios_list = []
 
-if len(pe_ratios) >= 10:
-    pe_ratios = pe_ratios[1:11]
+if len(pe_ratios) >= 13:
+    pe_ratios = pe_ratios[2:12]
 elif len(pe_ratios) >= 5:
     last_index = len(pe_ratios) - 1
-    pe_ratios = pe_ratios[1:last_index]
+    pe_ratios = pe_ratios[2:last_index]
 else:
     print(f'{chosen_stock}\'s data does not span over a long enough time horizon.')
     sys.exit()
