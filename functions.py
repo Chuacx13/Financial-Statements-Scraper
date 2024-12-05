@@ -21,39 +21,39 @@ def generate_roic_table(driver, ticker, year):
     roic_table_data = {}
 
     WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "search_form"))
+        EC.presence_of_element_located((By.ID, "SearchKeyword"))
     )
 
-    input_ticker = driver.find_element(By.CLASS_NAME, "search-input")
+    input_ticker = driver.find_element(By.ID, "SearchKeyword")
     input_ticker.clear()
     input_ticker.send_keys(ticker)
 
     first_ticker = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "tr.clickable-row"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "#SearchResults ul li:first-child a"))
     )
     first_ticker.click()
 
     time.sleep(3)
 
     financials = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+        EC.presence_of_element_located((By.ID, "financialsIcon"))
     )
     financials.click()
 
     time.sleep(3)
 
     income_statement = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:first-child a"))
     )
     income_statement.click()
 
     time.sleep(3)
 
     WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#report-table tbody tr td a"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(1) small a"))
     )
 
-    years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
+    years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(1) small a")
     if len(years) < 5: 
         print(f'{ticker}\'s data does not span over a long enough time horizon.')
         return
@@ -61,30 +61,31 @@ def generate_roic_table(driver, ticker, year):
     operating_incomes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(9) td.formatted-value")
     tax_expenses = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(15) td.formatted-value")
     earnings_before_taxes = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(14) td.formatted-value")
+
     for i in range(len(years)):
         roic_table_data[years[i].text] = [0, float(operating_incomes[i+1].text.replace(',', '')), float(tax_expenses[i+1].text.replace(',', '')), float(earnings_before_taxes[i+1].text.replace(',', '')), 0, 0, 0, 0, 0, 0]
 
     time.sleep(3)
 
     financials = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+        EC.presence_of_element_located((By.ID, "financialsIcon"))
     )
     financials.click()
 
     time.sleep(3)
 
     balance_sheet = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(2)"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:nth-of-type(2) a"))
     )
     balance_sheet.click()
 
     time.sleep(3)
 
-    years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr td a")
-    short_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(19) td.formatted-value")
-    long_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(25) td.formatted-value")
-    total_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(37) td.formatted-value")
-    equities = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(28) td.formatted-value")
+    years = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(1) small a")
+    short_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(20) td.formatted-value")
+    long_term_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(26) td.formatted-value")
+    total_debts = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(42) td.formatted-value")
+    equities = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(31) td.formatted-value")
     for i in range(len(years)):
         roic_table_data[years[i].text][4] = float(short_term_debts[i].text.replace(',', ''))
         roic_table_data[years[i].text][5] = float(long_term_debts[i].text.replace(',', ''))
@@ -140,20 +141,26 @@ def generate_equity_trend(driver, ticker, year):
     It then calculates Equity Growth Rates over different time horizons and saves them as CSV files in a structured directory format.
     """
 
-    equities = WebDriverWait(driver, 10).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(28) td.formatted-value"))
-    )
+    equities = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(31) td.formatted-value")
+
     if len(equities) >= 10:
         first_year = float(equities[0].text.replace(',', ''))
         second_year = float(equities[1].text.replace(',', ''))
         fifth_year = float(equities[4].text.replace(',', ''))
         tenth_year = float(equities[9].text.replace(',', ''))
 
-        equity_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
-        }
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or tenth_year < 0: 
+            equity_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year - tenth_year)/tenth_year) * 100, first_year, tenth_year]
+            }
+        else:
+            equity_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+            }
 
     elif len(equities) >= 5:
         last_index = len(equities) - 1
@@ -162,11 +169,18 @@ def generate_equity_trend(driver, ticker, year):
         fifth_year = float(equities[4].text.replace(',', ''))
         last_year = float(equities[last_index].text.replace(',', ''))
 
-        equity_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
-        }
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or last_year < 0: 
+            equity_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year - last_year)/last_year) * 100, first_year, last_year]
+            }
+        else:
+            equity_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+            }
 
     else: 
         return
@@ -194,45 +208,59 @@ def generate_eps_trend(driver, ticker, year):
     eps_trend_data = {}
 
     financials = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+        EC.presence_of_element_located((By.ID, "financialsIcon"))
     )
     financials.click()
 
     time.sleep(3)
 
     income_statement = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:first-child a"))
     )
     income_statement.click()
 
     time.sleep(3)
 
-    eps = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(20) td.formatted-value")
+    eps = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(21) td.formatted-value")
 
-    if len(eps) >= 10:
+    if len(eps) >= 11:
         first_year = float(eps[1].text.replace(',', ''))
         second_year = float(eps[2].text.replace(',', ''))
         fifth_year = float(eps[5].text.replace(',', ''))
         tenth_year = float(eps[10].text.replace(',', ''))
         
-        eps_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
-        }
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or tenth_year < 0: 
+            eps_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year - tenth_year)/tenth_year) * 100, first_year, tenth_year]
+            }
+        else:
+            eps_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+            }
 
-    elif len(eps) >= 5:
+    elif len(eps) >= 6:
         last_index = len(eps) - 1
-        first_year = float(eps[0].text.replace(',', ''))
-        second_year = float(eps[1].text.replace(',', ''))
-        fifth_year = float(eps[4].text.replace(',', ''))
+        first_year = float(eps[1].text.replace(',', ''))
+        second_year = float(eps[2].text.replace(',', ''))
+        fifth_year = float(eps[5].text.replace(',', ''))
         last_year = float(eps[last_index].text.replace(',', ''))
 
-        eps_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
-        }
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or last_year < 0: 
+            eps_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year - last_year)/last_year) * 100, first_year, last_year]
+            }
+        else:
+            eps_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+            }
 
     else: 
         return
@@ -262,30 +290,44 @@ def generate_revenue_trend(driver, ticker, year):
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(2) td.formatted-value"))
     )
 
-    if len(revenues) >= 10:
+    if len(revenues) >= 11:
         first_year = float(revenues[1].text.replace(',', ''))
         second_year = float(revenues[2].text.replace(',', ''))
         fifth_year = float(revenues[5].text.replace(',', ''))
         tenth_year = float(revenues[10].text.replace(',', ''))
         
-        revenue_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
-        }
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or tenth_year < 0: 
+            revenue_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year - tenth_year)/tenth_year) * 100, first_year, tenth_year]
+            }
+        else: 
+            revenue_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+            }
 
-    elif len(revenues) >= 5:
+    elif len(revenues) >= 6:
         last_index = len(revenues) - 1
-        first_year = float(revenues[0].text.replace(',', ''))
-        second_year = float(revenues[1].text.replace(',', ''))
-        fifth_year = float(revenues[4].text.replace(',', ''))
+        first_year = float(revenues[1].text.replace(',', ''))
+        second_year = float(revenues[2].text.replace(',', ''))
+        fifth_year = float(revenues[5].text.replace(',', ''))
         last_year = float(revenues[last_index].text.replace(',', ''))
 
-        revenue_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
-        }
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or last_year < 0: 
+            revenue_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year - last_year)/last_year) * 100, first_year, last_year]
+            }
+        else:
+            revenue_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+            }
 
     else: 
         return
@@ -312,14 +354,14 @@ def generate_free_cash_flow_trend(driver, ticker, year):
     """
 
     financials = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+        EC.presence_of_element_located((By.ID, "financialsIcon"))
     )
     financials.click()
 
     time.sleep(3)
 
     cash_flow_statement = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(3)"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:nth-of-type(3) a"))
     )
     cash_flow_statement.click()
 
@@ -327,30 +369,44 @@ def generate_free_cash_flow_trend(driver, ticker, year):
 
     cash_flows = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(30) td.formatted-value")
 
-    if len(cash_flows) >= 10:
+    if len(cash_flows) >= 11:
         first_year = float(cash_flows[1].text.replace(',', ''))
         second_year = float(cash_flows[2].text.replace(',', ''))
         fifth_year = float(cash_flows[5].text.replace(',', ''))
         tenth_year = float(cash_flows[10].text.replace(',', ''))
-        
-        cash_flow_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
-        }
 
-    elif len(cash_flows) >= 5:
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or tenth_year < 0: 
+            cash_flow_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year - tenth_year)/tenth_year) * 100, first_year, tenth_year]
+            }
+        else:
+            cash_flow_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+            }
+
+    elif len(cash_flows) >= 6:
         last_index = len(cash_flows) - 1
-        first_year = float(cash_flows[0].text.replace(',', ''))
-        second_year = float(cash_flows[1].text.replace(',', ''))
-        fifth_year = float(cash_flows[4].text.replace(',', ''))
+        first_year = float(cash_flows[1].text.replace(',', ''))
+        second_year = float(cash_flows[2].text.replace(',', ''))
+        fifth_year = float(cash_flows[5].text.replace(',', ''))
         last_year = float(cash_flows[last_index].text.replace(',', ''))
 
-        cash_flow_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
-        }
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or last_year < 0: 
+            cash_flow_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year - last_year)/last_year) * 100, first_year, last_year]
+            }
+        else:
+            cash_flow_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+            }
 
     else: 
         return
@@ -379,30 +435,44 @@ def generate_operating_cash_flow_trend(driver, ticker, year):
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(3) td.formatted-value"))
     )
 
-    if len(operating_cash_flows) >= 10:
+    if len(operating_cash_flows) >= 11:
         first_year = float(operating_cash_flows[1].text.replace(',', ''))
         second_year = float(operating_cash_flows[2].text.replace(',', ''))
         fifth_year = float(operating_cash_flows[5].text.replace(',', ''))
         tenth_year = float(operating_cash_flows[10].text.replace(',', ''))
         
-        operating_cash_flow_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
-        }
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or tenth_year < 0: 
+            operating_cash_flow_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year - tenth_year)/tenth_year) * 100, first_year, tenth_year]
+            }
+        else:
+            operating_cash_flow_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                '10-Year': [((first_year / tenth_year) ** (1/9) - 1) * 100, first_year, tenth_year]
+            }
 
-    elif len(operating_cash_flows) >= 5:
+    elif len(operating_cash_flows) >= 6:
         last_index = len(operating_cash_flows) - 1
-        first_year = float(operating_cash_flows[0].text.replace(',', ''))
-        second_year = float(operating_cash_flows[1].text.replace(',', ''))
-        fifth_year = float(operating_cash_flows[4].text.replace(',', ''))
+        first_year = float(operating_cash_flows[1].text.replace(',', ''))
+        second_year = float(operating_cash_flows[2].text.replace(',', ''))
+        fifth_year = float(operating_cash_flows[5].text.replace(',', ''))
         last_year = float(operating_cash_flows[last_index].text.replace(',', ''))
 
-        operating_cash_flow_trend_data = {
-            '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
-            '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
-            f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
-        }
+        if first_year < 0 or second_year < 0 or fifth_year < 0 or last_year < 0: 
+            operating_cash_flow_trend_data = {
+                '1-Year': [((first_year - second_year)/second_year) * 100, first_year, second_year], 
+                '5-Year': [((first_year - fifth_year)/fifth_year) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year - last_year)/last_year) * 100, first_year, last_year]
+            }
+        else:
+            operating_cash_flow_trend_data = {
+                '1-Year': [((first_year / second_year) - 1) * 100, first_year, second_year], 
+                '5-Year': [((first_year / fifth_year) ** (1/4) - 1) * 100, first_year, fifth_year], 
+                f'{last_index + 1}-Year': [((first_year / last_year) ** (1/last_index) - 1) * 100, first_year, last_year]
+            }
 
     else: 
         return
@@ -435,14 +505,14 @@ def generate_analysis_results(driver, ticker, year, input_growth_rate):
     """
      
     chart_link = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.LINK_TEXT, "Chart"))
+        EC.presence_of_element_located((By.ID, "chartIcon"))
     )
     chart_link.click()
 
     time.sleep(3)
 
     # Current EPS
-    current_eps = float(driver.find_element(By.CSS_SELECTOR, "div.company-container div.col-sm:nth-of-type(2) ul.list-group li:nth-of-type(5) span").text)
+    current_eps = float(driver.find_element(By.CSS_SELECTOR, "#company_details div div:nth-of-type(2) ul li:nth-of-type(5) span:nth-of-type(2)").text)
 
     # EPS Growth Rate (Historical)
     eps_trend = pd.read_csv(f'Final_Results/{ticker}/{year}/{ticker}_equity_trend_{year}.csv')
@@ -460,23 +530,25 @@ def generate_analysis_results(driver, ticker, year, input_growth_rate):
     max_pe_ratio = 0
     min_pe_ratio = 0 
     financials = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "dropdownMenuFinancials"))
+        EC.presence_of_element_located((By.ID, "financialsIcon"))
     )
     financials.click()
 
     time.sleep(3)
 
     ratios = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "a.dropdown-item:nth-of-type(4)"))
+        EC.presence_of_element_located((By.CSS_SELECTOR, "details.dropdown.dropdown-start ul li:nth-of-type(5) a"))
     )
     ratios.click()
 
-    pe_ratios = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(2) td.formatted-value")
+    time.sleep(3) 
+
+    pe_ratios = driver.find_elements(By.CSS_SELECTOR, "#report-table tbody tr:nth-of-type(2) td")
     pe_ratios_list = []
 
-    if len(pe_ratios) >= 10:
-        pe_ratios = pe_ratios[1:11]
-    elif len(pe_ratios) >= 5:
+    if len(pe_ratios) >= 12:
+        pe_ratios = pe_ratios[2:12]
+    elif len(pe_ratios) >= 7:
         last_index = len(pe_ratios) - 1
         pe_ratios = pe_ratios[1:last_index]
     else:
